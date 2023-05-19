@@ -1,11 +1,18 @@
 import * as admin from "firebase-admin";
-import { DecodedIdToken } from "firebase-admin/auth";
+import { Auth } from "firebase-admin/auth";
+import { Firestore } from "firebase-admin/firestore";
 
 export interface FirebaseAdminAppParams {
         projectId: string;
         clientEmail: string;
         storageBucket: string;
         privateKey: string;
+}
+
+export interface FirebaseAdmin {
+        firebase_admin: admin.app.App,
+        auth: Auth,
+        firestore: Firestore,
 }
 
 const formatFirebasePrivateKey = ( key: string ): string => {
@@ -35,7 +42,7 @@ const createFirebaseAdminApp = ( params: FirebaseAdminAppParams ): admin.app.App
         });
 }
 
-const getAdmin = (): admin.app.App => {
+const initAdmin = (): admin.app.App => {
         const params = {
                 projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
                 clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
@@ -46,12 +53,23 @@ const getAdmin = (): admin.app.App => {
         return createFirebaseAdminApp ( params );
 }
 
-const firebase_admin = getAdmin ();
-const firestore = firebase_admin.firestore ();
-const auth = firebase_admin.auth ();
+let firebase_admin: admin.app.App | null = null;
+let firestore: Firestore | null = null;
+let auth: Auth | null = null;
 
-firestore.settings ({
-        ignoreUndefinedProperties: true,
-});
+const getAdmin = (): FirebaseAdmin => {
+        if (!firebase_admin || !firestore || !auth) {
+                firebase_admin = initAdmin ();
+                
+                firestore = firebase_admin.firestore ();
+                firestore.settings ({
+                        ignoreUndefinedProperties: true,
+                });
 
-export { firestore, auth };
+                auth = firebase_admin.auth ();
+        }
+
+        return { firebase_admin, firestore, auth };
+}
+
+export default getAdmin;

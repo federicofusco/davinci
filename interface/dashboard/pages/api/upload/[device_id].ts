@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { auth, firestore } from "../../../lib/firebase_admin";
+import getAdmin from "../../../lib/firebase_admin";
 import { FieldValue } from "firebase-admin/firestore";
 import Cors from "cors";
 
@@ -32,9 +32,16 @@ interface UploadResponse {
 async function upload (device_id: string, data: UploadRequest, fn: Function, response: NextApiResponse<UploadResponse>) {
         
         // Verifies the ID token
+        const { auth, firestore } = getAdmin ();
         auth
                 .verifyIdToken ( data.jwt )
                 .then ( async user => {
+
+                        // Checks that the device ID corresponds to the JWT
+                        if (device_id !== user.uid) {
+                                response.status ( 401 ).json ({ message: "JWT doesn't match the device's ID!", code: "INVALID_JWT" });
+                                return;
+                        }
 
                         // Attempts to fetch the device by their ID
                         const device_ref = firestore
