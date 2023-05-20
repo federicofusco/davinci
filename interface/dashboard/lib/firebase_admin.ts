@@ -58,16 +58,16 @@ let firestore: Firestore | null = null;
 let auth: Auth | null = null;
 
 const getAdmin = (): FirebaseAdmin => {
-        if (!firebase_admin || !firestore || !auth) {
-                firebase_admin = initAdmin ();
-                
+        if (!firebase_admin) firebase_admin = initAdmin ();
+
+        if (!firestore) {
                 firestore = firebase_admin.firestore ();
                 firestore.settings ({
                         ignoreUndefinedProperties: true,
                 });
-
-                auth = firebase_admin.auth ();
         }
+
+        if (!auth) auth = firebase_admin.auth ();
 
         return { firebase_admin, firestore, auth };
 }
