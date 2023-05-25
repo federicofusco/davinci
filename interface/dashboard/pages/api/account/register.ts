@@ -2,13 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { auth, firestore } from "../../../lib/firebase";
 import { doc, setDoc, GeoPoint } from "firebase/firestore";
 import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
-import Cors from "cors";
-
-// Allows only PUT requests from any origin, since external devices need to interact with this endpoint
-const cors = Cors ({
-        methods: ["PUT"],
-        origin: "*"
-});
+import NextCors from 'nextjs-cors';
 
 interface RegistrationRequest {
         email: string,
@@ -21,8 +15,8 @@ interface RegistrationResponse {
         data?: any
 }
 
-async function register ( email: string, password: string, fn: Function, response: NextApiResponse<RegistrationResponse> ) {
-        
+async function register ( email: string, password: string, response: NextApiResponse<RegistrationResponse> ) {
+
         // Attempts to create the new user
         createUserWithEmailAndPassword ( auth, email, password )
                 .then ( async ({ user }) => {
@@ -49,6 +43,13 @@ export default async function handler ( request: NextApiRequest, response: NextA
 
         console.log(request.body);
 
+        await NextCors(request, response, {
+                methods: ['GET', 'PUT', 'POST'],
+                origin: '*',
+                optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+        });
+          
+
         // Gets the user's credentials
         const { email, password }: RegistrationRequest = request.body;
         if (
@@ -56,5 +57,5 @@ export default async function handler ( request: NextApiRequest, response: NextA
                 || !password || password.length === 0 || Array.isArray ( password ) 
         ) return response.status ( 400 ).json ({ message: "Missing or invalid credentials!", code: "INVALID_CREDENTIALS" });
 
-        return await register ( email, password, cors, response );
+        return await register ( email, password, response );
 }
