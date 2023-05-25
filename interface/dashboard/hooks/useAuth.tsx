@@ -3,7 +3,7 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { getIdToken } from "firebase/auth"
 import { useRouter } from "next/router"
 
-import cookieCutter from "cookie-cutter"
+const cookieCutter = require ( "cookie-cutter" )
 
 export interface AuthFunctions {
         updateIdToken: ( forceUpdate: boolean ) => Promise<string>,
