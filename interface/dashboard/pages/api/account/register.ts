@@ -41,8 +41,6 @@ async function register ( email: string, password: string, response: NextApiResp
 
 export default async function handler ( request: NextApiRequest, response: NextApiResponse<RegistrationResponse> ) {
 
-        console.log(request.body);
-
         await NextCors(request, response, {
                 methods: ['GET', 'PUT', 'POST'],
                 origin: '*',

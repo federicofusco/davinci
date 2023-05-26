@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import getAdmin from "../../../lib/firebase_admin";
+import { auth, firestore } from "../../../lib/firebase_admin";
 import { FieldValue } from "firebase-admin/firestore";
 import Cors from "cors";
+const uuid = require("uuid");
 
 // Allows only PUT requests from any origin, since external devices need to interact with this endpoint
 const cors = Cors ({
@@ -32,7 +33,6 @@ interface UploadResponse {
 async function upload (data: UploadRequest, fn: Function, response: NextApiResponse<UploadResponse>) {
         
         // Verifies the ID token
-        const { auth, firestore } = getAdmin ();
         auth
                 .verifyIdToken ( data.jwt )
                 .then ( async user => {
@@ -46,13 +46,13 @@ async function upload (data: UploadRequest, fn: Function, response: NextApiRespo
 
                                         // Checks if the device has been registered
                                         if ( device.exists ) {
-
+                                                console.log(uuid.v4())
                                                 // Uploads the snapshot to the device
                                                 firestore
                                                         .collection ( "devices" )
                                                         .doc ( user.uid )
                                                         .collection ( "snapshots" )
-                                                        .doc ( "a" )
+                                                        .doc ( uuid.v4() )
                                                         .set ({
                                                                 timestamp: FieldValue.serverTimestamp (),
                                                                 air: {
