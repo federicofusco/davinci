@@ -1,7 +1,6 @@
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, firestore } from "../lib/firebase";
 import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
-import useAuth from "./useAuth";
 
 export interface Device {
         metadata: {
@@ -31,7 +30,6 @@ export interface SnapshotFunctions {
 
 const useSnapshot = (): SnapshotFunctions => {
         const [user, loading, error] = useAuthState ( auth );
-        const { isLoggedIn } = useAuth ();
 
         const fetchDevice = (): Promise<Device> => {
                 return new Promise ( async ( resolve, reject ) => {

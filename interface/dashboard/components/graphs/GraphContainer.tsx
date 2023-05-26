@@ -34,7 +34,11 @@ const GraphContainer = ({ title, map }: GraphContainerProps) => {
         const { fetchSnapshots } = useSnapshot ();
         const [snapshots, setSnapshots] = useState<Snapshot[] | null> ( null );
         const [_user, loading, _error] = useAuthState ( auth );
-        useMemo ( async () => setSnapshots ( await fetchSnapshots () ), [loading]);
+        useMemo ( async () => {
+                await fetchSnapshots ()
+                        .then (data => setSnapshots(data))
+                        .catch (error => console.error(Error));
+        }, [loading]);
 
         const extractTimestamps = (): string[] => {
                 let data: string[] = [];

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import getAdmin from "../../../lib/firebase_admin";
+import { auth, firestore } from "../../../lib/firebase_admin";
 import Cors from "cors";
 
 // Allows only PUT requests from any origin, since external devices need to interact with this endpoint
@@ -23,7 +23,6 @@ interface MetadataResponse {
 async function upload (jwt: string, plant_name: string, min_humidity: number, allow_data_aggregation: boolean, fn: Function, response: NextApiResponse<MetadataResponse>) {
 
         // Verifies the ID token
-        const { auth, firestore } = getAdmin ();
         auth
                 .verifyIdToken ( jwt )
                 .then ( async user => {

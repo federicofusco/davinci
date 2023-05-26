@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import getApp from "../../../lib/firebase";
+import { auth } from "../../../lib/firebase";
 import { getAuth, signInWithEmailAndPassword, getIdToken } from "firebase/auth";
 import Cors from "cors";
 
@@ -22,10 +22,6 @@ interface AuthenticationResponse {
 
 async function login ( email: string, password: string, fn: Function, response: NextApiResponse<AuthenticationResponse> ) {
         
-        // Initializes the FireBase SDK
-        const app = getApp ();
-        const auth = getAuth ( app );
-
         // Attempts to login with the provided credentials
         await signInWithEmailAndPassword ( auth, email, password )
                 .then ( async user => {
